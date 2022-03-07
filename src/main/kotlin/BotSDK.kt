@@ -1,6 +1,7 @@
 import contract.Disperse
 import contract.MultiCall
 import utils.ERC20Utils
+import utils.ERC721Utils
 import utils.ETHUtils
 import java.math.BigInteger
 
@@ -28,8 +29,18 @@ class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     }
 
     @kotlin.jvm.Throws
+    fun batchEthBalance(): List<BigInteger> {
+        return ETHUtils.batchBalance(multiCall, walletManager.getAllWalletAddresses())
+    }
+
+    @kotlin.jvm.Throws
     fun batchEthBalance(addresses: List<String>): List<BigInteger> {
         return ETHUtils.batchBalance(multiCall, addresses)
+    }
+
+    @kotlin.jvm.Throws
+    fun batchErc20Balance(token: String): List<BigInteger> {
+        return ERC20Utils.batchBalance(multiCall, walletManager.getAllWalletAddresses(), token)
     }
 
     @kotlin.jvm.Throws
@@ -77,6 +88,27 @@ class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
         gasPrice: BigInteger = botWeb3.defaultGasPrice
     ): String {
         return ERC20Utils.distributeTokenTarget(token, addresses, value, disperse, multiCall, wallet, gasPrice)
+    }
+
+    @kotlin.jvm.Throws
+    fun batchERC721Balance(token: String): List<BigInteger> {
+        return ERC721Utils.batchBalance(token, walletManager.getAllWalletAddresses(), multiCall)
+    }
+
+    @kotlin.jvm.Throws
+    fun batchERC721Balance(token: String, addresses: List<String>): List<BigInteger> {
+        return ERC721Utils.batchBalance(token, addresses, multiCall)
+    }
+
+    @kotlin.jvm.Throws
+    fun collectAllErc721(token: String, targetAddress: String) {
+        ERC721Utils.collectAll(token, walletManager.getAllWallet(), multiCall, targetAddress)
+    }
+
+
+    @kotlin.jvm.Throws
+    fun collectAllErc721(token: String, wallets: List<WalletManager.WalletIndexed>, targetAddress: String) {
+        ERC721Utils.collectAll(token, wallets, multiCall, targetAddress)
     }
 
 }

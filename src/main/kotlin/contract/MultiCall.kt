@@ -14,7 +14,7 @@ import java.math.BigInteger
 
 data class MultiCallData(val address: String, val data: String)
 
-class MultiCall(private val botWeb3: BotWeb3, var contract: String) {
+class MultiCall(val botWeb3: BotWeb3, var contract: String) {
 
     @kotlin.jvm.Throws
     fun aggregate(calls: List<MultiCallData>): List<DynamicBytes> {

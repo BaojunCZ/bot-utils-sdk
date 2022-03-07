@@ -66,4 +66,13 @@ class BotSDKTest {
         )
         Utils.log(hash)
     }
+
+    @Test
+    fun testBatchERC721Balance() {
+        val addresses = botSDK.walletManager.getAllWalletAddresses()
+        val balances = botSDK.batchERC721Balance(ConstantsTest.ElfinNFTContract, addresses)
+        balances.forEachIndexed { index, balance ->
+            Utils.log("${addresses[index]} $balance")
+        }
+    }
 }
