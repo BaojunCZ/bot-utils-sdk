@@ -36,6 +36,10 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
         return wallets
     }
 
+    fun getAllWalletAddresses(withFirst: Boolean = false): List<String> {
+        return getAllWallet(withFirst).map { it.credentials.address }
+    }
+
     fun getPartWallets(start: Int): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
         for (i in start until walletSize) {

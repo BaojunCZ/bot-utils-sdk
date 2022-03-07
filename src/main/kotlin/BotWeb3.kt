@@ -7,6 +7,7 @@ import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
 import org.web3j.protocol.http.HttpService
 import org.web3j.utils.Numeric
+import utils.Utils
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.CompletableFuture

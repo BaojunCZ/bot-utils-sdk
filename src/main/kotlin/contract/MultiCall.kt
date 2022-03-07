@@ -1,7 +1,6 @@
 package contract
 
 import BotWeb3
-import WalletManager
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.FunctionReturnDecoder
@@ -15,9 +14,10 @@ import java.math.BigInteger
 
 data class MultiCallData(val address: String, val data: String)
 
-class MultiCall(private val botWeb3: BotWeb3, private val contract: String) {
+class MultiCall(private val botWeb3: BotWeb3, var contract: String) {
 
-    fun aggregate(botWeb3: BotWeb3, calls: MutableList<MultiCallData>, wallet: WalletManager.WalletIndexed): List<DynamicBytes> {
+    @kotlin.jvm.Throws
+    fun aggregate(calls: List<MultiCallData>): List<DynamicBytes> {
         try {
             val dataList = calls.map {
                 DynamicStruct(Address(it.address), DynamicBytes(Hex.decode(it.data.substring(2).toByteArray())))
@@ -27,9 +27,9 @@ class MultiCall(private val botWeb3: BotWeb3, private val contract: String) {
                 listOf(DynamicArray(DynamicArray::class.java, dataList)),
                 listOf(object : TypeReference<Uint256?>() {}, object : TypeReference<DynamicArray<DynamicBytes?>?>() {})
             )
-            val encodeFunctionDataOfMulticall = FunctionEncoder.encode(aggregateFunction)
+            val encodeFunctionDataOfMultiCall = FunctionEncoder.encode(aggregateFunction)
             val ethCallTransaction: Transaction =
-                Transaction.createEthCallTransaction(wallet.credentials.address, contract, encodeFunctionDataOfMulticall)
+                Transaction.createEthCallTransaction(calls[0].address, contract, encodeFunctionDataOfMultiCall)
             val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
             val result = FunctionReturnDecoder.decode(response.value, aggregateFunction.outputParameters)
             return result[1].value as List<DynamicBytes>
@@ -39,15 +39,16 @@ class MultiCall(private val botWeb3: BotWeb3, private val contract: String) {
         return emptyList()
     }
 
-    fun getEthBalance(wallet: WalletManager.WalletIndexed): BigInteger {
+    @kotlin.jvm.Throws
+    fun getEthBalance(address: String): BigInteger {
         val function = Function(
             "getEthBalance",
-            listOf(Address(wallet.credentials.address)),
+            listOf(Address(address)),
             listOf<TypeReference<*>>(object : TypeReference<Uint256?>() {})
         )
         val encoding = FunctionEncoder.encode(function)
         val ethCallTransaction: Transaction =
-            Transaction.createEthCallTransaction(wallet.credentials.address, contract, encoding)
+            Transaction.createEthCallTransaction(address, contract, encoding)
         val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
         val result = FunctionReturnDecoder.decode(response.value, function.outputParameters)
         return (result[0] as Uint256).value

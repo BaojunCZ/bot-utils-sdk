@@ -1,3 +1,6 @@
+package utils
+
+import WalletManager
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.*
