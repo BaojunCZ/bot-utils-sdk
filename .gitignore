@@ -3,3 +3,4 @@
 /build/
 /.idea/
 /src/main/kotlin/PrivateKey.kt
+/src/test/kotlin/PrivateKey.kt

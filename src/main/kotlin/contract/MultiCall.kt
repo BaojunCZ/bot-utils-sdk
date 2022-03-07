@@ -18,25 +18,20 @@ class MultiCall(private val botWeb3: BotWeb3, var contract: String) {
 
     @kotlin.jvm.Throws
     fun aggregate(calls: List<MultiCallData>): List<DynamicBytes> {
-        try {
-            val dataList = calls.map {
-                DynamicStruct(Address(it.address), DynamicBytes(Hex.decode(it.data.substring(2).toByteArray())))
-            }
-            val aggregateFunction = Function(
-                "aggregate",
-                listOf(DynamicArray(DynamicArray::class.java, dataList)),
-                listOf(object : TypeReference<Uint256?>() {}, object : TypeReference<DynamicArray<DynamicBytes?>?>() {})
-            )
-            val encodeFunctionDataOfMultiCall = FunctionEncoder.encode(aggregateFunction)
-            val ethCallTransaction: Transaction =
-                Transaction.createEthCallTransaction(calls[0].address, contract, encodeFunctionDataOfMultiCall)
-            val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
-            val result = FunctionReturnDecoder.decode(response.value, aggregateFunction.outputParameters)
-            return result[1].value as List<DynamicBytes>
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val dataList = calls.map {
+            DynamicStruct(Address(it.address), DynamicBytes(Hex.decode(it.data.substring(2).toByteArray())))
         }
-        return emptyList()
+        val aggregateFunction = Function(
+            "aggregate",
+            listOf(DynamicArray(DynamicArray::class.java, dataList)),
+            listOf(object : TypeReference<Uint256?>() {}, object : TypeReference<DynamicArray<DynamicBytes?>?>() {})
+        )
+        val encodeFunctionDataOfMultiCall = FunctionEncoder.encode(aggregateFunction)
+        val ethCallTransaction: Transaction =
+            Transaction.createEthCallTransaction(calls[0].address, contract, encodeFunctionDataOfMultiCall)
+        val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
+        val result = FunctionReturnDecoder.decode(response.value, aggregateFunction.outputParameters)
+        return result[1].value as List<DynamicBytes>
     }
 
     @kotlin.jvm.Throws

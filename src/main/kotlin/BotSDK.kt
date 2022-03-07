@@ -1,3 +1,4 @@
+import contract.Disperse
 import contract.MultiCall
 import utils.ERC20Utils
 import utils.ETHUtils
@@ -12,9 +13,18 @@ class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     val walletManager = WalletManager(mnemonic, walletSize)
 
     val multiCall = MultiCall(botWeb3, MultiCallContract)
+    val disperse = Disperse(botWeb3, DisperseContract)
+
+    fun setDefaultGasPrice(gasPrice: BigInteger) {
+        botWeb3.defaultGasPrice = gasPrice
+    }
 
     fun setMultiCallContract(address: String) {
         multiCall.contract = address
+    }
+
+    fun setDisperseContract(address: String) {
+        disperse.contract = address
     }
 
     @kotlin.jvm.Throws
@@ -25,6 +35,48 @@ class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     @kotlin.jvm.Throws
     fun batchErc20Balance(addresses: List<String>, token: String): List<BigInteger> {
         return ERC20Utils.batchBalance(multiCall, addresses, token)
+    }
+
+    @kotlin.jvm.Throws
+    fun distributeEth(
+        addresses: List<String>,
+        value: BigInteger,
+        wallet: WalletManager.WalletIndexed,
+        gasPrice: BigInteger = botWeb3.defaultGasPrice
+    ): String {
+        return ETHUtils.distributeETH(addresses, value, disperse, wallet, gasPrice)
+    }
+
+    @kotlin.jvm.Throws
+    fun distributeEthTarget(
+        addresses: List<String>,
+        value: BigInteger,
+        wallet: WalletManager.WalletIndexed,
+        gasPrice: BigInteger = botWeb3.defaultGasPrice
+    ): String {
+        return ETHUtils.distributeETHTarget(addresses, value, disperse, multiCall, wallet, gasPrice)
+    }
+
+    @kotlin.jvm.Throws
+    fun distributeErc20(
+        token: String,
+        addresses: List<String>,
+        value: BigInteger,
+        wallet: WalletManager.WalletIndexed,
+        gasPrice: BigInteger = botWeb3.defaultGasPrice
+    ): String {
+        return ERC20Utils.distributeToken(token, addresses, value, disperse, wallet, gasPrice)
+    }
+
+    @kotlin.jvm.Throws
+    fun distributeErc20Target(
+        token: String,
+        addresses: List<String>,
+        value: BigInteger,
+        wallet: WalletManager.WalletIndexed,
+        gasPrice: BigInteger = botWeb3.defaultGasPrice
+    ): String {
+        return ERC20Utils.distributeTokenTarget(token, addresses, value, disperse, multiCall, wallet, gasPrice)
     }
 
 }
