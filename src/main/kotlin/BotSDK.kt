@@ -5,7 +5,7 @@ import utils.ERC721Utils
 import utils.ETHUtils
 import java.math.BigInteger
 
-class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
+open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     val MultiCallContract = "0x1Ee38d535d541c55C9dae27B12edf090C608E6Fb"
     val DisperseContract = "0xD152f549545093347A162Dce210e7293f1452150"
@@ -102,7 +102,7 @@ class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     @kotlin.jvm.Throws
     fun collectAllErc721(token: String, targetAddress: String) {
-        ERC721Utils.collectAll(token, walletManager.getAllWallet(), multiCall, targetAddress)
+        ERC721Utils.collectAll(token, walletManager.getAllWalletWithoutFirst(), multiCall, targetAddress)
     }
 
 

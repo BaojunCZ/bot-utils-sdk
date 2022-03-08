@@ -27,17 +27,24 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
         return WalletIndexed(Credentials.create(ECKeyPair.create(privateKey)), index)
     }
 
-    fun getAllWallet(withFirst: Boolean = false): List<WalletIndexed> {
+    fun getAllWalletWithoutFirst(): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
-        val start = if (withFirst) 0 else 1
-        for (i in start until walletSize) {
+        for (i in 1 until walletSize) {
             wallets.add(getWallet(i))
         }
         return wallets
     }
 
-    fun getAllWalletAddresses(withFirst: Boolean = false): List<String> {
-        return getAllWallet(withFirst).map { it.credentials.address }
+    fun getAllWallet(): List<WalletIndexed> {
+        val wallets = mutableListOf<WalletIndexed>()
+        for (i in 0 until walletSize) {
+            wallets.add(getWallet(i))
+        }
+        return wallets
+    }
+
+    fun getAllWalletAddresses(): List<String> {
+        return getAllWallet().map { it.credentials.address }
     }
 
     fun getPartWallets(start: Int): List<WalletIndexed> {
