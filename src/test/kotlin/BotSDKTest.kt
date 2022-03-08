@@ -1,3 +1,4 @@
+import ConstantsTest.ElfinNFTContract
 import ConstantsTest.MboxTokenContract
 import org.junit.jupiter.api.Test
 import org.web3j.utils.Convert
@@ -85,13 +86,13 @@ class BotSDKTest {
 
     @Test
     fun testErc20Approve() {
-        val hash = botSDK.approveErc20(MboxTokenContract, BigInteger("10000000000000"), botSDK.walletManager.getFirstWallet())
+        val hash = botSDK.approveErc20(MboxTokenContract, ElfinNFTContract, BigInteger("10000000000000"), botSDK.walletManager.getFirstWallet())
         Utils.log(hash)
     }
 
     @Test
     fun testErc20ApproveMax() {
-        val hash = botSDK.approveMaxErc20(MboxTokenContract, botSDK.walletManager.getFirstWallet())
+        val hash = botSDK.approveMaxErc20(MboxTokenContract, ElfinNFTContract, botSDK.walletManager.getFirstWallet())
         Utils.log(hash)
     }
 }

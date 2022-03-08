@@ -112,13 +112,13 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     }
 
     @kotlin.jvm.Throws
-    fun approveErc20(token: String, amount: BigInteger, wallet: WalletManager.WalletIndexed): String {
-        return ERC20Utils.approve(token, amount, wallet, botWeb3)
+    fun approveErc20(token: String, approvedAddress: String, amount: BigInteger, wallet: WalletManager.WalletIndexed): String {
+        return ERC20Utils.approve(token, approvedAddress, amount, wallet, botWeb3)
     }
 
     @kotlin.jvm.Throws
-    fun approveMaxErc20(token: String, wallet: WalletManager.WalletIndexed): String {
-        return ERC20Utils.approveMax(token, wallet, botWeb3)
+    fun approveMaxErc20(token: String, approvedAddress: String, wallet: WalletManager.WalletIndexed): String {
+        return ERC20Utils.approveMax(token, approvedAddress, wallet, botWeb3)
     }
 
 }
