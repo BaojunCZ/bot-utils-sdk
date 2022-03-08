@@ -25,68 +25,12 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
         }
     }
 
-    fun sendTransactionAsync(credentials: Credentials, to: String, data: String, gasPrice: BigInteger = defaultGasPrice): CompletableFuture<String> {
-        return sendTransactionAsync(credentials, gasPrice, to, data, BigInteger.ZERO)
-    }
-
-    fun sendTransactionAsync(credentials: Credentials, gasPrice: BigInteger, to: String, data: String, value: BigInteger)
-            : CompletableFuture<String> {
-        return getNonce(credentials.address)?.let { nonce ->
-            val transaction = Transaction.createFunctionCallTransaction(credentials.address, nonce, gasPrice, BigInteger.ZERO, to, data)
-            web3j.ethEstimateGas(transaction).sendAsync()
-                .thenCompose {
-                    if (it.result == null) {
-                        Utils.log(it.error.message)
-                        CompletableFuture<String>().exceptionally { "估算gasLimit失败" }
-                    } else {
-                        val gasLimit = BigInteger(it.result.removePrefix("0x"), 16) * BigInteger.valueOf(2)
-                        sendTransactionAsync(credentials, nonce, defaultGasPrice, gasLimit, to, data, value)
-                    }
-                }
-        } ?: kotlin.run {
-            CompletableFuture<String>().exceptionally { "获取nonce失败" }
-        }
-    }
-
-    fun sendTransactionAsync(credentials: Credentials, gasPrice: BigInteger, gasLimit: BigInteger, to: String, data: String, value: BigInteger)
-            : CompletableFuture<String> {
-        return getNonce(credentials.address)?.let {
-            sendTransactionAsync(credentials, it, gasPrice, gasLimit, to, data, value)
-        } ?: kotlin.run {
-            CompletableFuture<String>().exceptionally { "获取nonce失败" }
-        }
-    }
-
-    fun sendTransactionAsync(
-        credentials: Credentials,
-        nonce: BigInteger,
-        gasPrice: BigInteger,
-        gasLimit: BigInteger,
-        to: String,
-        data: String,
-        value: BigInteger
-    )
-            : CompletableFuture<String> {
-        val future = CompletableFuture<String>()
-        val rawTransaction = RawTransaction.createTransaction(nonce, gasPrice, gasLimit, to, value, data)
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
-        val hexValue = Numeric.toHexString(signedMessage)
-        web3j.ethSendRawTransaction(hexValue).sendAsync().thenAccept { ethSendTransaction ->
-            if (ethSendTransaction.hasError()) {
-                future.exceptionally {
-                    ethSendTransaction.error.message
-                }
-            } else {
-                future.complete(ethSendTransaction.transactionHash)
-            }
-        }
-        return future
-    }
-
+    @kotlin.jvm.Throws
     fun sendTransaction(credentials: Credentials, to: String, data: String, gasPrice: BigInteger = defaultGasPrice): String {
         return sendTransaction(credentials, gasPrice, to, data, BigInteger.ZERO)
     }
 
+    @kotlin.jvm.Throws
     fun sendTransaction(credentials: Credentials, gasPrice: BigInteger, to: String, data: String, value: BigInteger): String {
         return getNonce(credentials.address)?.let { nonce ->
             val transaction = Transaction.createFunctionCallTransaction(credentials.address, nonce, gasPrice, BigInteger.ZERO, to, value, data)
@@ -102,6 +46,7 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
         }
     }
 
+    @kotlin.jvm.Throws
     fun sendTransaction(credentials: Credentials, gasPrice: BigInteger, gasLimit: BigInteger, to: String, data: String, value: BigInteger)
             : String {
         return getNonce(credentials.address)?.let {
@@ -111,6 +56,7 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
         }
     }
 
+    @kotlin.jvm.Throws
     fun sendTransaction(
         credentials: Credentials,
         nonce: BigInteger,
