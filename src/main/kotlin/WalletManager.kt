@@ -57,7 +57,7 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
 
     fun getPartWallets(from: Int, to: Int): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
-        for (i in from..to) {
+        for (i in from until to) {
             wallets.add(getWallet(i))
         }
         return wallets
@@ -65,7 +65,7 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
 
     fun getPartWallets(): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
-        for (i in from..to) {
+        for (i in from until to) {
             wallets.add(getWallet(i))
         }
         return wallets
