@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(5) * Gwei) {
     val web3j: Web3j = Web3j.build(HttpService(rpc))
 
-    private fun getNonce(address: String): BigInteger? {
+    fun getNonce(address: String): BigInteger? {
         return try {
             web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).send().transactionCount
         } catch (e: Exception) {
