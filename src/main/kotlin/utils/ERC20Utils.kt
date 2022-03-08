@@ -15,6 +15,7 @@ import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
 import org.web3j.utils.Convert
+import utils.Utils.zeroPad
 import java.math.BigInteger
 
 object ERC20Utils {
@@ -88,5 +89,18 @@ object ERC20Utils {
         } else {
             ""
         }
+    }
+
+    @kotlin.jvm.Throws
+    fun approve(token: String, amount: BigInteger, wallet: WalletManager.WalletIndexed, botWeb3: BotWeb3): String {
+        val payload = "0x095ea7b3" + zeroPad(wallet.credentials.address.removePrefix("0x")) + zeroPad(amount.toString(16))
+        return botWeb3.sendTransaction(wallet.credentials, token, payload)
+    }
+
+    @kotlin.jvm.Throws
+    fun approveMax(token: String, wallet: WalletManager.WalletIndexed, botWeb3: BotWeb3): String {
+        val payload =
+            "0x095ea7b3" + zeroPad(wallet.credentials.address.removePrefix("0x")) + "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        return botWeb3.sendTransaction(wallet.credentials, token, payload)
     }
 }

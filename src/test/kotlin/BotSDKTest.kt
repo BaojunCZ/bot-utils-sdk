@@ -1,7 +1,9 @@
+import ConstantsTest.MboxTokenContract
 import org.junit.jupiter.api.Test
 import org.web3j.utils.Convert
 import utils.Utils
 import java.math.BigDecimal
+import java.math.BigInteger
 
 class BotSDKTest {
 
@@ -79,5 +81,17 @@ class BotSDKTest {
     @Test
     fun testCollectAllErc721() {
         botSDK.collectAllErc721(ConstantsTest.ElfinNFTContract, botSDK.walletManager.getFirstWallet().credentials.address)
+    }
+
+    @Test
+    fun testErc20Approve() {
+        val hash = botSDK.approveErc20(MboxTokenContract, BigInteger("10000000000000"), botSDK.walletManager.getFirstWallet())
+        Utils.log(hash)
+    }
+
+    @Test
+    fun testErc20ApproveMax() {
+        val hash = botSDK.approveMaxErc20(MboxTokenContract, botSDK.walletManager.getFirstWallet())
+        Utils.log(hash)
     }
 }
