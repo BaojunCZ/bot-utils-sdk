@@ -75,4 +75,9 @@ class BotSDKTest {
             Utils.log("${addresses[index]} $balance")
         }
     }
+
+    @Test
+    fun testCollectAllErc721() {
+        botSDK.collectAllErc721(ConstantsTest.ElfinNFTContract, botSDK.walletManager.getFirstWallet().credentials.address)
+    }
 }

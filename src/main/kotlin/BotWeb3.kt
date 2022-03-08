@@ -95,8 +95,7 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
                 throw  Exception("估算gasLimit失败 ${result.error.message}")
             } else {
                 val gasLimit = BigInteger(result.result.removePrefix("0x"), 16) * BigInteger.valueOf(2)
-                return gasLimit.toString()
-                //                sendTransaction(credentials, nonce, defaultGasPrice, gasLimit, to, data, value)
+                sendTransaction(credentials, nonce, defaultGasPrice, gasLimit, to, data, value)
             }
         } ?: kotlin.run {
             throw  Exception("获取nonce失败")

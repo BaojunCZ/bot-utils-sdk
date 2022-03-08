@@ -15,7 +15,6 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("org.web3j:core:4.8.7")
-    implementation("com.google.code.gson:gson:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 }
 

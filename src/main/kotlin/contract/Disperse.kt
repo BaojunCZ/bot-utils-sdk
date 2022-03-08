@@ -7,8 +7,6 @@ import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.DynamicArray
 import org.web3j.abi.datatypes.Function
 import org.web3j.abi.datatypes.generated.Uint256
-import org.web3j.utils.Convert
-import utils.Utils
 import java.math.BigInteger
 
 data class DisperseData(val address: String, val value: BigInteger)
@@ -29,7 +27,7 @@ class Disperse(private val botWeb3: BotWeb3, var contract: String) {
             listOf(DynamicArray(Address::class.java, addresses), DynamicArray(Uint256::class.java, values)),
             listOf()
         )
-        return botWeb3.sendTransaction(wallet.credentials, contract, FunctionEncoder.encode(function), totalValue)
+        return botWeb3.sendTransaction(wallet.credentials, gasPrice, contract, FunctionEncoder.encode(function), totalValue)
     }
 
     fun disperseToken(
@@ -44,15 +42,12 @@ class Disperse(private val botWeb3: BotWeb3, var contract: String) {
         val values = data.map {
             Uint256(it.value)
         }
-        data.forEachIndexed { index, value ->
-            Utils.log("${value.address} ${Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER)}")
-        }
         val function = Function(
             "disperseToken",
             listOf(Address(token), DynamicArray(Address::class.java, addresses), DynamicArray(Uint256::class.java, values)),
             listOf()
         )
-        return botWeb3.sendTransaction(wallet.credentials, contract, FunctionEncoder.encode(function))
+        return botWeb3.sendTransaction(wallet.credentials, contract, FunctionEncoder.encode(function), gasPrice)
     }
 
 }
