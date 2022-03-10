@@ -5,14 +5,11 @@ import WalletManager
 import contract.MultiCall
 import contract.MultiCallData
 import org.web3j.abi.FunctionEncoder
-import org.web3j.abi.FunctionReturnDecoder
 import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.Function
 import org.web3j.abi.datatypes.Type
 import org.web3j.abi.datatypes.generated.Uint256
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.core.methods.request.Transaction
 import java.math.BigInteger
 
 object ERC721Utils {
@@ -65,11 +62,7 @@ object ERC721Utils {
             ),
             listOf<TypeReference<*>>(object : TypeReference<Uint256?>() {})
         )
-        val encoding = FunctionEncoder.encode(function)
-        val ethCallTransaction: Transaction =
-            Transaction.createEthCallTransaction(owner, token, encoding)
-        val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
-        val result = FunctionReturnDecoder.decode(response.value, function.outputParameters)
+        val result = botWeb3.ethCall(function, owner, token)
         return (result[0] as Uint256).value
     }
 

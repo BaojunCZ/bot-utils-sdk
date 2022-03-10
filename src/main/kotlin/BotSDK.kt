@@ -1,5 +1,6 @@
 import contract.Disperse
 import contract.MultiCall
+import utils.ERC1155Utils
 import utils.ERC20Utils
 import utils.ERC721Utils
 import utils.ETHUtils
@@ -30,7 +31,7 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     @kotlin.jvm.Throws
     fun batchEthBalance(): List<BigInteger> {
-        return ETHUtils.batchBalance(multiCall, walletManager.getAllWalletAddresses())
+        return ETHUtils.batchBalance(multiCall, walletManager.allWalletAddresses)
     }
 
     @kotlin.jvm.Throws
@@ -40,7 +41,7 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     @kotlin.jvm.Throws
     fun batchErc20Balance(token: String): List<BigInteger> {
-        return ERC20Utils.batchBalance(multiCall, walletManager.getAllWalletAddresses(), token)
+        return ERC20Utils.batchBalance(multiCall, walletManager.allWalletAddresses, token)
     }
 
     @kotlin.jvm.Throws
@@ -92,7 +93,7 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     @kotlin.jvm.Throws
     fun batchERC721Balance(token: String): List<BigInteger> {
-        return ERC721Utils.batchBalance(token, walletManager.getAllWalletAddresses(), multiCall)
+        return ERC721Utils.batchBalance(token, walletManager.allWalletAddresses, multiCall)
     }
 
     @kotlin.jvm.Throws
@@ -102,7 +103,7 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
 
     @kotlin.jvm.Throws
     fun collectAllErc721(token: String, targetAddress: String) {
-        ERC721Utils.collectAll(token, walletManager.getAllWalletWithoutFirst(), multiCall, targetAddress)
+        ERC721Utils.collectAll(token, walletManager.allWalletWithoutFirst, multiCall, targetAddress)
     }
 
 
@@ -119,6 +120,16 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     @kotlin.jvm.Throws
     fun approveMaxErc20(token: String, approvedAddress: String, wallet: WalletManager.WalletIndexed): String {
         return ERC20Utils.approveMax(token, approvedAddress, wallet, botWeb3)
+    }
+
+    @kotlin.jvm.Throws
+    fun batchErc1155Balance(token: String, id: String, addresses: List<String>): List<BigInteger> {
+        return ERC1155Utils.batchBalance(token, id, addresses, multiCall)
+    }
+
+    @kotlin.jvm.Throws
+    fun collectErc1155(token: String, id: String, wallets: List<WalletManager.WalletIndexed>, target: String) {
+        ERC1155Utils.collectAll(token, target, id, wallets, botWeb3)
     }
 
 }

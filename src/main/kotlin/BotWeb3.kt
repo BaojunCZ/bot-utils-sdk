@@ -1,4 +1,7 @@
 import BotSdkConstants.Gwei
+import org.web3j.abi.FunctionEncoder
+import org.web3j.abi.FunctionReturnDecoder
+import org.web3j.abi.datatypes.Type
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
@@ -144,5 +147,14 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
             it.printStackTrace()
             null
         }
+    }
+
+    @kotlin.jvm.Throws
+    fun ethCall(function: org.web3j.abi.datatypes.Function, address: String, to: String): MutableList<Type<Any>> {
+        val encoding = FunctionEncoder.encode(function)
+        val ethCallTransaction: Transaction =
+            Transaction.createEthCallTransaction(address, to, encoding)
+        val response = web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
+        return FunctionReturnDecoder.decode(response.value, function.outputParameters)
     }
 }

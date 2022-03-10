@@ -3,17 +3,42 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.MnemonicUtils
 
-class WalletManager(mnemonic: String, private val walletSize: Int) {
-
-    val from = 0
-    val to = walletSize
+class WalletManager(mnemonic: String, private val walletSize: Int, var collectIndex: Int = 0) {
 
     private val seed: ByteArray = MnemonicUtils.generateSeed(mnemonic, "")
     private val masterKeypair = Bip32ECKeyPair.generateKeyPair(seed)
 
-    fun getFirstWallet(): WalletIndexed {
-        return getWallet(0)
-    }
+    val collectWallet: WalletIndexed
+        get() = getWallet(collectIndex)
+
+    val collectAddress: String
+        get() = collectWallet.credentials.address
+
+    val firstWallet: WalletIndexed
+        get() = getWallet(0)
+
+    val allWalletWithoutFirst: List<WalletIndexed>
+        get() {
+            val wallets = mutableListOf<WalletIndexed>()
+            for (i in 1 until walletSize) {
+                wallets.add(getWallet(i))
+            }
+            return wallets
+        }
+
+    val allWallet: List<WalletIndexed>
+        get() {
+            val wallets = mutableListOf<WalletIndexed>()
+            for (i in 0 until walletSize) {
+                wallets.add(getWallet(i))
+            }
+            return wallets
+        }
+
+    val allWalletAddresses: List<String>
+        get() {
+            return allWallet.map { it.credentials.address }
+        }
 
     fun getWallet(index: Int): WalletIndexed {
         val path = intArrayOf(
@@ -27,26 +52,6 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
         return WalletIndexed(Credentials.create(ECKeyPair.create(privateKey)), index)
     }
 
-    fun getAllWalletWithoutFirst(): List<WalletIndexed> {
-        val wallets = mutableListOf<WalletIndexed>()
-        for (i in 1 until walletSize) {
-            wallets.add(getWallet(i))
-        }
-        return wallets
-    }
-
-    fun getAllWallet(): List<WalletIndexed> {
-        val wallets = mutableListOf<WalletIndexed>()
-        for (i in 0 until walletSize) {
-            wallets.add(getWallet(i))
-        }
-        return wallets
-    }
-
-    fun getAllWalletAddresses(): List<String> {
-        return getAllWallet().map { it.credentials.address }
-    }
-
     fun getPartWallets(start: Int): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
         for (i in start until walletSize) {
@@ -56,14 +61,6 @@ class WalletManager(mnemonic: String, private val walletSize: Int) {
     }
 
     fun getPartWallets(from: Int, to: Int): List<WalletIndexed> {
-        val wallets = mutableListOf<WalletIndexed>()
-        for (i in from until to) {
-            wallets.add(getWallet(i))
-        }
-        return wallets
-    }
-
-    fun getPartWallets(): List<WalletIndexed> {
         val wallets = mutableListOf<WalletIndexed>()
         for (i in from until to) {
             wallets.add(getWallet(i))
