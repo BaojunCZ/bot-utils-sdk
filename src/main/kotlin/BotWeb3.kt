@@ -1,4 +1,5 @@
 import BotSdkConstants.Gwei
+import kotlinx.coroutines.delay
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.FunctionReturnDecoder
 import org.web3j.abi.datatypes.Type
@@ -41,7 +42,10 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
             if (result.result == null) {
                 throw  Exception("估算gasLimit失败 ${result.error.message}")
             } else {
-                val gasLimit = BigInteger(result.result.removePrefix("0x"), 16) * BigInteger.valueOf(2)
+                var gasLimit = BigInteger(result.result.removePrefix("0x"), 16)
+                if (data != "" && data != "0x") {
+                    gasLimit *= BigInteger.valueOf(2)
+                }
                 sendTransaction(credentials, nonce, defaultGasPrice, gasLimit, to, data, value)
             }
         } ?: kotlin.run {
@@ -81,6 +85,20 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
         }
     }
 
+    suspend fun waitTx(hash: String): Boolean? {
+        return try {
+            delay(3000)
+            var result = queryTransaction(hash)
+            while (result == null) {
+                result = queryTransaction(hash)
+                delay(2000)
+            }
+            result
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun observeTx(hash: String): CompletableFuture<Boolean> {
 
         fun queryTx(hash: String, future: CompletableFuture<Boolean>) {
@@ -103,16 +121,19 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
         return future
     }
 
-    fun queryTransaction(hash: String): Boolean? {
+    @kotlin.jvm.Throws
+    fun queryTransaction(hash: String, log: Boolean = false): Boolean? {
         val receipt = web3j.ethGetTransactionReceipt(hash).send()
         return if (receipt.transactionReceipt.isPresent) {
             val status = receipt.transactionReceipt.get().status
             if (!status.isNullOrBlank()) {
                 if (status == "0x1") {
-                    Utils.log(("交易成功 $hash"))
+                    if (log)
+                        Utils.log(("交易成功 $hash"))
                     true
                 } else {
-                    Utils.log(("交易失败 $hash"))
+                    if (log)
+                        Utils.log(("交易失败 $hash"))
                     false
                 }
             } else {

@@ -23,7 +23,7 @@ class BotSDKTest {
     @Test
     fun testBatchErc20Balance() {
         val wallets = botSDK.walletManager.allWallet
-        botSDK.batchErc20Balance(wallets.map { it.credentials.address }, ConstantsTest.MboxTokenContract)
+        botSDK.batchErc20Balance(wallets.map { it.credentials.address }, MboxTokenContract)
             .forEachIndexed { index, balance ->
                 Utils.logWallet(wallets[index], "${Convert.fromWei(balance.toBigDecimal(), Convert.Unit.ETHER)}")
             }
@@ -50,7 +50,7 @@ class BotSDKTest {
         val wallets = botSDK.walletManager.getPartWallets(1, 3)
         val value = Convert.toWei(BigDecimal("0.01"), Convert.Unit.ETHER).toBigInteger()
         val hash = botSDK.distributeErc20(
-            ConstantsTest.MboxTokenContract,
+            MboxTokenContract,
             wallets.map { it.credentials.address },
             value,
             botSDK.walletManager.firstWallet
@@ -63,7 +63,7 @@ class BotSDKTest {
         val wallets = botSDK.walletManager.getPartWallets(1, 3)
         val value = Convert.toWei(BigDecimal("0.7"), Convert.Unit.ETHER).toBigInteger()
         val hash = botSDK.distributeErc20Target(
-            ConstantsTest.MboxTokenContract,
+            MboxTokenContract,
             wallets.map { it.credentials.address },
             value,
             botSDK.walletManager.firstWallet
@@ -107,7 +107,7 @@ class BotSDKTest {
 
     @Test
     fun testCollectErc1155() {
-        val wallets = botSDK.walletManager.getPartWallets(45, 48)
+        val wallets = botSDK.walletManager.getPartWallets(274, 275)
         botSDK.collectErc1155(MomoBoxContract, "1", wallets, botSDK.walletManager.firstWallet.credentials.address)
     }
 
@@ -116,5 +116,29 @@ class BotSDKTest {
         Utils.log(botSDK.walletManager.collectAddress)
         botSDK.walletManager.collectIndex = 1
         Utils.log(botSDK.walletManager.collectAddress)
+    }
+
+    @Test
+    fun testTransferERC20All() {
+        botSDK.transferErc20All(
+            botSDK.walletManager.getWallet(2),
+            MboxTokenContract,
+            botSDK.walletManager.collectAddress,
+            botSDK.botWeb3
+        )?.let {
+            Utils.log(it)
+            botSDK.botWeb3.observeTx(it).thenAccept {
+                Utils.log(it.toString())
+            }
+        } ?: kotlin.run {
+            Utils.log("没有余额")
+        }
+    }
+
+    @Test
+    fun testTransferETHAll() {
+        botSDK.transferETHAll(botSDK.walletManager.getWallet(2), botSDK.walletManager.collectAddress, botSDK.botWeb3)?.let {
+            Utils.log(it)
+        }
     }
 }

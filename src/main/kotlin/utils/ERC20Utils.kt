@@ -11,11 +11,13 @@ import org.web3j.abi.FunctionReturnDecoder
 import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.Function
+import org.web3j.abi.datatypes.generated.Int256
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
 import org.web3j.utils.Convert
 import utils.Utils.zeroPad
+import java.io.IOException
 import java.math.BigInteger
 
 object ERC20Utils {
@@ -34,6 +36,14 @@ object ERC20Utils {
         }
     }
 
+
+    @Throws(IOException::class)
+    fun balanceOf(address: String, token: String, botWeb3: BotWeb3): BigInteger {
+        val function = Function("balanceOf", listOf(Address(address)), listOf(object : TypeReference<Int256?>() {}))
+        val result = botWeb3.ethCall(function, address, token)
+        return (result[0] as Int256).value
+    }
+
     @kotlin.jvm.Throws
     fun decimals(token: String, botWeb3: BotWeb3): BigInteger {
         val decimalsFunction = Function(
@@ -48,6 +58,22 @@ object ERC20Utils {
         Utils.log(response.value)
         val decode = FunctionReturnDecoder.decode(response.value, decimalsFunction.outputParameters)
         return (decode[0] as Uint256).value
+    }
+
+    @kotlin.jvm.Throws
+    fun transfer(wallet: WalletManager.WalletIndexed, token: String, amount: BigInteger, toAddress: String, botWeb3: BotWeb3): String {
+        val function = Function("transfer", listOf(Address(toAddress), Uint256(amount)), emptyList())
+        return botWeb3.sendTransaction(wallet.credentials, token, FunctionEncoder.encode(function))
+    }
+
+    @kotlin.jvm.Throws
+    fun transferAll(wallet: WalletManager.WalletIndexed, token: String, toAddress: String, botWeb3: BotWeb3): String? {
+        val balance = balanceOf(wallet.credentials.address, token, botWeb3)
+        return if (balance > BigInteger.ZERO) {
+            transfer(wallet, token, balance, toAddress, botWeb3)
+        } else {
+            null
+        }
     }
 
     @kotlin.jvm.Throws

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "bj.bot.sdk"
-version = "1.1.2"
+version = "1.2.3"
 
 repositories {
     mavenCentral()

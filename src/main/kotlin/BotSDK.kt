@@ -50,6 +50,16 @@ open class BotSDK(rpc: String, mnemonic: String, walletSize: Int) {
     }
 
     @kotlin.jvm.Throws
+    fun transferErc20All(wallet: WalletManager.WalletIndexed, token: String, toAddress: String, botWeb3: BotWeb3): String? {
+        return ERC20Utils.transferAll(wallet, token, toAddress, botWeb3)
+    }
+
+    @kotlin.jvm.Throws
+    fun transferETHAll(wallet: WalletManager.WalletIndexed, toAddress: String, botWeb3: BotWeb3): String? {
+        return ETHUtils.transferAll(wallet, toAddress, botWeb3)
+    }
+
+    @kotlin.jvm.Throws
     fun distributeEth(
         addresses: List<String>,
         value: BigInteger,
