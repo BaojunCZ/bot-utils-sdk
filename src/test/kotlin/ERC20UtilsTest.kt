@@ -1,3 +1,4 @@
+import org.jetbrains.annotations.TestOnly
 import org.junit.jupiter.api.Test
 import utils.ERC20Utils
 import utils.Utils
@@ -30,6 +31,13 @@ class ERC20UtilsTest {
             }
         } ?: kotlin.run {
             Utils.log("没有余额")
+        }
+    }
+
+    @Test
+    fun testObserve() {
+        botSDK.botWeb3.observeTx("0x924d9869dD13cD4d0B1B0734EE2Bc045994AFDc6").thenAccept {
+            Utils.log(it.toString())
         }
     }
 

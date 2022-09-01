@@ -100,24 +100,19 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
     }
 
     fun observeTx(hash: String): CompletableFuture<Boolean> {
-
-        fun queryTx(hash: String, future: CompletableFuture<Boolean>) {
-            Timer().schedule(
-                object : TimerTask() {
-                    override fun run() {
-                        val status = queryTransaction(hash)
-                        if (status == null) {
-                            queryTx(hash, future)
-                        } else {
-                            future.complete(status)
-                        }
-                    }
-                }, 4 * 1000
-            )
-        }
-
         val future = CompletableFuture<Boolean>()
-        queryTx(hash, future)
+        val timer = Timer()
+        timer.schedule(
+            object : TimerTask() {
+                override fun run() {
+                    val status = queryTransaction(hash)
+                    if (status != null) {
+                        future.complete(status)
+                        timer.cancel()
+                    }
+                }
+            }, 4 * 1000, 4 * 1000
+        )
         return future
     }
 
