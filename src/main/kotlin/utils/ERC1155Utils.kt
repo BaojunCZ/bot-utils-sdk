@@ -36,7 +36,9 @@ object ERC1155Utils {
             MultiCallData(token, FunctionEncoder.encode(function))
         }
         return multiCall.aggregate(calls).map {
-            BigInteger(it.value)
+            it?.let {
+                BigInteger(it.value)
+            } ?: BigInteger.ZERO
         }
     }
 
@@ -79,7 +81,7 @@ object ERC1155Utils {
     @kotlin.jvm.Throws
     fun collectAll(token: String, to: String, id: String, wallets: List<WalletManager.WalletIndexed>, botWeb3: BotWeb3) {
         wallets.forEach {
-            safeTransferFromAll(token, to, id, botWeb3, it)?.let{ hash->
+            safeTransferFromAll(token, to, id, botWeb3, it)?.let { hash ->
                 Utils.logWallet(it, hash)
             }
         }

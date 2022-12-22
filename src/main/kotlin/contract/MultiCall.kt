@@ -17,7 +17,7 @@ data class MultiCallData(val address: String, val data: String)
 class MultiCall(val botWeb3: BotWeb3, var contract: String) {
 
     @kotlin.jvm.Throws
-    fun aggregate(calls: List<MultiCallData>): List<DynamicBytes> {
+    fun aggregate(calls: List<MultiCallData>): List<DynamicBytes?> {
         val dataList = calls.map {
             DynamicStruct(Address(it.address), DynamicBytes(Hex.decode(it.data.substring(2).toByteArray())))
         }
@@ -31,7 +31,11 @@ class MultiCall(val botWeb3: BotWeb3, var contract: String) {
             Transaction.createEthCallTransaction(calls[0].address, contract, encodeFunctionDataOfMultiCall)
         val response = botWeb3.web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
         val result = FunctionReturnDecoder.decode(response.value, aggregateFunction.outputParameters)
-        return result[1].value as List<DynamicBytes>
+        return if (result.size > 1) {
+            result[1].value as List<DynamicBytes?>
+        } else {
+            throw Exception("Null Result")
+        }
     }
 
     @kotlin.jvm.Throws

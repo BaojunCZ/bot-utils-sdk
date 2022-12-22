@@ -9,6 +9,7 @@ import org.web3j.abi.TypeReference
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.Function
 import org.web3j.abi.datatypes.Type
+import org.web3j.abi.datatypes.Utf8String
 import org.web3j.abi.datatypes.generated.Uint256
 import java.math.BigInteger
 
@@ -25,8 +26,41 @@ object ERC721Utils {
             MultiCallData(token, FunctionEncoder.encode(function))
         }
         return multiCall.aggregate(calls).map {
-            BigInteger(it.value)
+            it?.let {
+                BigInteger(it.value)
+            } ?: BigInteger.ZERO
         }
+    }
+
+    @kotlin.jvm.Throws
+    fun batchTokenURI(token: String, ids: List<BigInteger>, multiCall: MultiCall): List<String?> {
+        val calls = ids.map {
+            val function = Function(
+                "tokenURI",
+                listOf<Type<*>>(Uint256(it)),
+                listOf<TypeReference<*>>(object : TypeReference<Utf8String?>() {})
+            )
+            MultiCallData(token, FunctionEncoder.encode(function))
+        }
+        return multiCall.aggregate(calls).map {
+            if (it != null) {
+                String(it.value)
+            } else {
+                ""
+            }
+        }
+    }
+
+    fun tokenURI(botWeb3: BotWeb3, token: String, id: BigInteger): String {
+        val function = Function(
+            "tokenURI",
+            listOf<Type<*>>(
+                Uint256(id)
+            ),
+            listOf<TypeReference<*>>(object : TypeReference<Utf8String?>() {})
+        )
+        val result = botWeb3.ethCall(function, "0x924d9869dd13cd4d0b1b0734ee2bc045994afdc6", token)
+        return (result[0] as Utf8String).value
     }
 
     @kotlin.jvm.Throws

@@ -32,7 +32,9 @@ object ERC20Utils {
         }
         val balances = multiCall.aggregate(calls)
         return balances.map {
-            BigInteger(it.value)
+            it?.let {
+                BigInteger(it.value)
+            } ?: BigInteger.ZERO
         }
     }
 
@@ -74,6 +76,24 @@ object ERC20Utils {
         } else {
             null
         }
+    }
+
+    @kotlin.jvm.Throws
+    fun distributeToken(
+        token: String,
+        addresses: List<String>,
+        values: List<BigInteger>,
+        disperse: Disperse,
+        wallet: WalletManager.WalletIndexed,
+        gasPrice: BigInteger
+    ): String {
+        if (addresses.size != values.size) {
+            throw Exception("Size not match")
+        }
+        val data = addresses.mapIndexed { index, value ->
+            DisperseData(value, values[index])
+        }
+        return disperse.disperseToken(token, data, wallet, gasPrice)
     }
 
     @kotlin.jvm.Throws

@@ -166,10 +166,10 @@ class BotWeb3(rpc: String, var defaultGasPrice: BigInteger = BigInteger.valueOf(
     }
 
     @kotlin.jvm.Throws
-    fun ethCall(function: org.web3j.abi.datatypes.Function, address: String, to: String): MutableList<Type<Any>> {
+    fun ethCall(function: org.web3j.abi.datatypes.Function, from: String, to: String): MutableList<Type<Any>> {
         val encoding = FunctionEncoder.encode(function)
         val ethCallTransaction: Transaction =
-            Transaction.createEthCallTransaction(address, to, encoding)
+            Transaction.createEthCallTransaction(from, to, encoding)
         val response = web3j.ethCall(ethCallTransaction, DefaultBlockParameterName.LATEST).send()
         return FunctionReturnDecoder.decode(response.value, function.outputParameters)
     }

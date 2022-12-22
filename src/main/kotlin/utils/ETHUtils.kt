@@ -30,7 +30,9 @@ object ETHUtils {
         }
         val balances = multiCall.aggregate(calls)
         return balances.map {
-            BigInteger(it.value)
+            it?.let {
+                BigInteger(it.value)
+            } ?: BigInteger.ZERO
         }
     }
 
